@@ -18,6 +18,12 @@ public final class Validation {
         .get();
   }
 
+  public static <T> T notNull(T value, String message) {
+    return new ValidationSubject<>(value)
+        .assureThat(v -> v != null, message)
+        .get();
+  }
+
   public static class ValidationSubject<T> {
 
     private final T value;

@@ -20,7 +20,7 @@ class AccountTest {
   @Test
   void testCannotCreateAccountWithNegativeBalance() {
     var ex = assertThrows(ValidationException.class,
-        () -> new Account("", BigDecimal.valueOf(-1.0)));
+        () -> new Account("", new Money(BigDecimal.valueOf(-1.0))));
     assertEquals("Cannot create an account with negative balance", ex.getMessage());
   }
 

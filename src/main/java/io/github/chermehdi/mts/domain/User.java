@@ -1,24 +1,20 @@
 package io.github.chermehdi.mts.domain;
 
-import java.util.Objects;
-
 /**
  * @author chermehdi
  */
 public class User {
 
   private Integer id;
-  private String firstName;
-  private String lastName;
   private Account account;
+  private FullName fullName;
 
   public User() {
   }
 
   public User(Integer id, String firstName, String lastName) {
     this.id = id;
-    this.firstName = Objects.requireNonNull(firstName);
-    this.lastName = Objects.requireNonNull(lastName);
+    this.fullName = new FullName(firstName, lastName);
   }
 
   public Integer getId() {
@@ -30,19 +26,11 @@ public class User {
   }
 
   public String getFirstName() {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
+    return fullName.getFirstName();
   }
 
   public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
+    return fullName.getLastName();
   }
 
   public Account getAccount() {

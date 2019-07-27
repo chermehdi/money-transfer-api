@@ -11,21 +11,19 @@ import java.util.List;
 public class Account {
 
   private String id;
-  private BigDecimal balance;
-  private List<Transaction> transactions;
+  private Money balance;
+  private List<Transaction> transactions = new ArrayList<>();
 
   public Account() {
-    balance = BigDecimal.ZERO;
-    transactions = new ArrayList<>();
+
   }
 
-  public Account(String id, BigDecimal initialBalance) {
+  public Account(String id, Money initialBalance) {
     this.id = id;
     balance = Validation.validate(initialBalance)
-        .assureThat(balance -> balance.compareTo(BigDecimal.ZERO) >= 0,
+        .assureThat(balance -> balance.getAmount().compareTo(BigDecimal.ZERO) >= 0,
             "Cannot create an account with negative balance"
         ).get();
-    transactions = new ArrayList<>();
   }
 
   public String getId() {
@@ -36,11 +34,11 @@ public class Account {
     this.id = id;
   }
 
-  public BigDecimal getBalance() {
+  public Money getBalance() {
     return balance;
   }
 
-  public void setBalance(BigDecimal balance) {
+  public void setBalance(Money balance) {
     this.balance = balance;
   }
 

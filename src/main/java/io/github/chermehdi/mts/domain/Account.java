@@ -65,4 +65,14 @@ public class Account {
   public void setIdentifier(String identifier) {
     this.identifier = identifier;
   }
+
+  @Override
+  public String toString() {
+    return "Account{" +
+        "id=" + id +
+        ", identifier='" + identifier + '\'' +
+        ", balance=" + balance +
+        ", transactions=" + transactions +
+        '}';
+  }
 }

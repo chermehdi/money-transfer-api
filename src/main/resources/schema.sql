@@ -24,7 +24,7 @@ CREATE TABLE user
     account_id INT,
 
     CONSTRAINT pk_t_user PRIMARY KEY (ID),
-    CONSTRAINT fk_t_user_account_id FOREIGN KEY (account_id) REFERENCES account (id)
+    CONSTRAINT fk_t_user_account_id FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE
 )
 ;
 
@@ -34,10 +34,10 @@ CREATE TABLE transaction
     account_id  INT            NOT NULL,
     identifier  VARCHAR(255)   NOT NULL,
     amount      DECIMAL(19, 4) NOT NULL,
-    performedAt timestamp      NOT NULL,
+    performedAt timestamp      NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_t_transaction PRIMARY KEY (id),
-    CONSTRAINT fk_t_transaction_account_id FOREIGN KEY (account_id) REFERENCES account (id)
+    CONSTRAINT fk_t_transaction_account_id FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE
 )
 ;
 
@@ -62,5 +62,8 @@ VALUES ('foo', 'bar', 2)
 ;
 
 INSERT INTO user (first_name, last_name, account_id)
-VALUES ('john', 'doe', 2)
+VALUES ('john', 'doe', 3)
 ;
+
+INSERT INTO transaction (account_id, identifier, amount)
+VALUES (1, 'f756c8f6-9cb4-43eb-a78a-b5dad11b62e7', 120)

@@ -25,17 +25,22 @@ public class Money {
   }
 
   public Money(BigDecimal amount) {
-    this(DEFAULT_CURRENCY, amount);
+    this(amount, DEFAULT_CURRENCY);
   }
 
-  public Money(Currency currency, BigDecimal amount) {
+  public Money(BigDecimal amount, Currency currency) {
     this.currency = currency;
+    this.amount = amount;
+  }
+
+  public Money(BigDecimal amount, String currencyCode) {
+    this.currency = Currency.getInstance(currencyCode);
     this.amount = amount;
   }
 
   public Money add(Money other) {
     guardAgainstDifferentCurrencies(other);
-    return new Money(currency, other.amount.add(amount));
+    return new Money(other.amount.add(amount), currency);
   }
 
   private void guardAgainstDifferentCurrencies(Money other) {
@@ -46,7 +51,7 @@ public class Money {
 
   public Money subtract(Money other) {
     guardAgainstDifferentCurrencies(other);
-    return new Money(currency, other.amount.subtract(amount));
+    return new Money(other.amount.subtract(amount), currency);
   }
 
   public Currency getCurrency() {
@@ -55,5 +60,13 @@ public class Money {
 
   public BigDecimal getAmount() {
     return amount;
+  }
+
+  @Override
+  public String toString() {
+    return "Money{" +
+        "currency=" + currency +
+        ", amount=" + amount +
+        '}';
   }
 }

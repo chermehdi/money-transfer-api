@@ -31,8 +31,8 @@ class MoneyTest {
 
   @Test
   public void testCannotAddMoneyWithDifferentCurrency() {
-    var money1 = new Money(getInstance("MAD"), ONE);
-    var money2 = new Money(getInstance("EUR"), ONE);
+    var money1 = new Money(ONE, getInstance("MAD"));
+    var money2 = new Money(ONE, getInstance("EUR"));
     assertThrows(ValidationException.class, () -> {
       money1.add(money2);
     });
@@ -40,8 +40,8 @@ class MoneyTest {
 
   @Test
   public void testCanAddMoneyWithSameCurrency() {
-    var money1 = new Money(getInstance("MAD"), ONE);
-    var money2 = new Money(getInstance("MAD"), BigDecimal.valueOf(2));
+    var money1 = new Money(ONE, getInstance("MAD"));
+    var money2 = new Money(BigDecimal.valueOf(2), getInstance("MAD"));
     Money result = money1.add(money2);
     // money objects do not change after operation
     assertEquals(BigDecimal.valueOf(1), money1.getAmount());

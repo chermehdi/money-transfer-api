@@ -185,7 +185,7 @@
             <configuration>
               <jdbc>
                 <driver>org.h2.Driver</driver>
-                <url>jdbc:h2:~/mts</url>
+                <url>jdbc:h2:~/rev-mts</url>
                 <user>sa</user>
                 <password></password>
               </jdbc>

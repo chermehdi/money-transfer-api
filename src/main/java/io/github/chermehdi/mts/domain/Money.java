@@ -34,16 +34,18 @@ public class Money {
   }
 
   public Money add(Money other) {
-    Validation.validate(other)
-        .assureThat(money -> money.currency == currency,
-            "cannot perform operation on money with different currencies");
+    guardAgainstDifferentCurrencies(other);
     return new Money(currency, other.amount.add(amount));
   }
 
-  public Money subtract(Money other) {
+  private void guardAgainstDifferentCurrencies(Money other) {
     Validation.validate(other)
         .assureThat(money -> money.currency == currency,
             "cannot perform operation on money with different currencies");
+  }
+
+  public Money subtract(Money other) {
+    guardAgainstDifferentCurrencies(other);
     return new Money(currency, other.amount.subtract(amount));
   }
 

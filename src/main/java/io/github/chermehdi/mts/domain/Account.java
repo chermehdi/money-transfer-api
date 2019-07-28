@@ -4,33 +4,41 @@ import io.github.chermehdi.mts.util.validation.Validation;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author chermehdi
  */
 public class Account {
 
-  private String id;
+  private Integer id;
+  private String identifier;
   private Money balance;
   private List<Transaction> transactions = new ArrayList<>();
 
   public Account() {
-
   }
 
-  public Account(String id, Money initialBalance) {
+  public Account(Integer id, Money initialBalance) {
+    this(id, initialBalance, UUID.randomUUID().toString());
+  }
+
+
+  public Account(Integer id, Money initialBalance, String identifier) {
     this.id = id;
+    this.identifier = identifier;
     balance = Validation.validate(initialBalance)
         .assureThat(balance -> balance.getAmount().compareTo(BigDecimal.ZERO) >= 0,
             "Cannot create an account with negative balance"
         ).get();
   }
 
-  public String getId() {
+
+  public Integer getId() {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -48,5 +56,13 @@ public class Account {
 
   public void setTransactions(List<Transaction> transactions) {
     this.transactions = transactions;
+  }
+
+  public String getIdentifier() {
+    return identifier;
+  }
+
+  public void setIdentifier(String identifier) {
+    this.identifier = identifier;
   }
 }

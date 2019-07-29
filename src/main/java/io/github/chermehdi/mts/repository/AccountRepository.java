@@ -27,7 +27,7 @@ public class AccountRepository {
   }
 
   public Optional<Account> findById(Integer key) {
-    Account account = context.select()
+    var account = context.select()
         .from(ACCOUNT)
         .where(ACCOUNT.ID.eq(key))
         .fetchOne(new AccountMapper());
@@ -47,9 +47,7 @@ public class AccountRepository {
         .returning(ACCOUNT.ID)
         .fetchOne();
 
-    accountRecord = Validation.validate(accountRecord)
-        .assureThat(record -> record != null)
-        .get();
+    accountRecord = Validation.notNull(accountRecord);
 
     entity.setId(accountRecord.getId());
     return entity;

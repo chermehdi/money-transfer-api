@@ -1,5 +1,7 @@
 package io.github.chermehdi.mts.domain;
 
+import io.github.chermehdi.mts.util.validation.Validation;
+
 /**
  * @author chermehdi
  */
@@ -39,5 +41,10 @@ public class User {
 
   public void setAccount(Account account) {
     this.account = account;
+  }
+
+  public void setFullName(FullName fullName) {
+    Validation.notNull(fullName);
+    this.fullName = fullName;
   }
 }

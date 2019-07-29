@@ -14,6 +14,9 @@ public class Transfer {
   private Money amount;
   private Instant performedAt;
 
+  public Transfer() {
+  }
+
   public Transfer(Long id, String fromAccountId, String toAccountId, Money amount) {
     this.id = id;
     this.fromAccountId = Validation.notNull(fromAccountId);

@@ -47,6 +47,7 @@ public class TransactionRepository {
         .set(TRANSACTION.ACCOUNT_ID, account.getId())
         .set(TRANSACTION.AMOUNT, entity.getAmount())
         .set(TRANSACTION.IDENTIFIER, entity.getIdentifier())
+        .set(TRANSACTION.CURRENCY, account.getBalance().getCurrency().getCurrencyCode())
         .set(TRANSACTION.PERFORMEDAT, Timestamp.from(entity.getPerformedAt()))
         .returning(TRANSACTION.ID)
         .fetchOne();

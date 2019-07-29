@@ -34,6 +34,14 @@ public class AccountRepository {
     return Optional.ofNullable(account);
   }
 
+  public Optional<Account> findByIdentifier(String identifier) {
+    var account = context.selectFrom(ACCOUNT)
+        .where(ACCOUNT.IDENTIFIER.eq(identifier))
+        .fetchOne(new AccountMapper());
+    return Optional.ofNullable(account);
+  }
+
+
   public List<Account> findAll() {
     return context.selectFrom(ACCOUNT)
         .fetch(new AccountMapper());

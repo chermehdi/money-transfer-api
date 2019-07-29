@@ -120,4 +120,15 @@ class AccountRepositoryTest {
     assertEquals(1, eagerAccount.get().getId());
     assertEquals(1, eagerAccount.get().getTransactions().size());
   }
+
+  @Test
+  public void testFindByIdentifier() {
+    var repository = new AccountRepository(context);
+    var randomAccountIdentifier = "adf3234-234ljdf-wer";
+    var existingAccountIdentifier = "1f442fda-b0c4-40a0-b2f8-89dca5e0b2d8";
+
+    assertFalse(repository.findByIdentifier(randomAccountIdentifier).isPresent());
+
+    assertTrue(repository.findByIdentifier(existingAccountIdentifier).isPresent());
+  }
 }

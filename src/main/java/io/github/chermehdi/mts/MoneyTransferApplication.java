@@ -1,17 +1,21 @@
 package io.github.chermehdi.mts;
 
-import static io.github.chermehdi.mts.domain.tables.Account.ACCOUNT;
+import static spark.Spark.post;
 
-import io.github.chermehdi.mts.domain.Account;
-import io.github.chermehdi.mts.domain.Money;
-import io.github.chermehdi.mts.util.DatabaseConnectionProvider;
-import java.math.BigDecimal;
-import java.util.Currency;
-import org.jooq.Record;
-import org.jooq.RecordMapper;
-import org.jooq.impl.DSL;
+import com.google.inject.Guice;
+import io.github.chermehdi.mts.config.ApplicationModule;
+import io.github.chermehdi.mts.dto.UserCreationRequest;
+import io.github.chermehdi.mts.util.ConfigurationProvider.Configuration;
+import io.github.chermehdi.mts.util.conversion.JsonResponseTransformer;
+import io.github.chermehdi.mts.util.metrics.MetricHandler;
+import javax.inject.Inject;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Filter;
+import spark.Request;
+import spark.Response;
+import spark.ResponseTransformer;
 import spark.Spark;
 
 /**
@@ -21,41 +25,47 @@ public class MoneyTransferApplication {
 
   private static final Logger logger = LoggerFactory.getLogger(MoneyTransferApplication.class);
 
+  private final Configuration configuration;
+  private final ResponseTransformer responseTransformer;
+  private final MetricHandler metricHandler;
+
+  @Inject
+  public MoneyTransferApplication(
+      Configuration configuration, ResponseTransformer responseTransformer,
+      MetricHandler metricHandler) {
+    this.configuration = configuration;
+    this.responseTransformer = responseTransformer;
+    this.metricHandler = metricHandler;
+  }
+
   public void start() {
-    Account account = DSL.using(new DatabaseConnectionProvider().getConnection())
-        .select()
-        .from(ACCOUNT)
-        .where(ACCOUNT.ID.eq(1))
-        .fetchOne(new RecordMapper<Record, Account>() {
-          @Override
-          public Account map(Record record) {
-            Integer id = record.getValue(ACCOUNT.ID);
-            BigDecimal amount = record.getValue(ACCOUNT.AMOUNT);
-            String currency = record.getValue(ACCOUNT.CURRENCY);
-            String identifier = record.getValue(ACCOUNT.IDENTIFIER);
-            return new Account(id, new Money(amount, Currency.getInstance(currency)), identifier);
-          }
-        });
-    logger.info("The account is " + account);
-    bootDependencyInjectionContainer();
     registerGlobalHandlers();
     registerRoutes();
   }
 
-  private void bootDependencyInjectionContainer() {
-  }
-
   private void registerGlobalHandlers() {
+    Spark.port(Integer.parseInt(configuration.getProperty("mts.web.port")));
+
     Spark.before("/*", (request, response) ->
-        logger.info(
-            "New " + request.requestMethod() + " request: " + request.ip() + " - " + request.host()
-                + " --- " + request.pathInfo()));
+        metricHandler.writeMetrics(request)
+    );
+
+    Spark.after((Filter) (request, response)
+        -> response.header("Content-type", "application/json"));
   }
 
   public void registerRoutes() {
+    post("/users", this::userCreation, new JsonResponseTransformer());
+  }
+
+  @NotNull
+  private UserCreationRequest userCreation(Request req, Response res) {
+    return new UserCreationRequest("mehdi", "cheracher", "EUR");
   }
 
   public static void main(String[] args) {
-    new MoneyTransferApplication().start();
+    var injector = Guice.createInjector(new ApplicationModule());
+    var application = injector.getInstance(MoneyTransferApplication.class);
+    application.start();
   }
 }

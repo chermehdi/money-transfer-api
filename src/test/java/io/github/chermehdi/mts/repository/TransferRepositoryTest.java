@@ -1,5 +1,6 @@
 package io.github.chermehdi.mts.repository;
 
+import static io.github.chermehdi.mts.domain.tables.Transfer.TRANSFER;
 import static java.math.BigDecimal.valueOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -7,12 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.chermehdi.mts.DatabaseTestExtension;
+import io.github.chermehdi.mts.Databases;
 import io.github.chermehdi.mts.domain.Money;
 import io.github.chermehdi.mts.domain.Transfer;
 import io.github.chermehdi.mts.domain.Transfer.TransferStatus;
 import io.github.chermehdi.mts.util.DatabaseConnectionProvider;
 import io.github.chermehdi.mts.util.validation.ValidationException;
-import java.io.IOException;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +31,7 @@ class TransferRepositoryTest {
   private DSLContext context;
 
   @BeforeEach
-  void initialize() throws IOException {
+  void initialize() {
     context = DSL.using(new DatabaseConnectionProvider()
         .getConnection());
   }
@@ -45,6 +46,25 @@ class TransferRepositoryTest {
   public void testFindByIdThrowsIfIdIsNull() {
     var transferRepository = new TransferRepository(context);
     assertThrows(ValidationException.class, () -> transferRepository.findById(null));
+  }
+
+  @Test
+  public void testFindAllMustFindAllRecords() {
+    var transferRepository = new TransferRepository(context);
+    var allTransfers = transferRepository.findAll();
+    var expectedCount = Databases.getRowCount(TRANSFER.getName());
+
+    assertNotNull(allTransfers);
+    assertEquals(expectedCount, allTransfers.size());
+
+    var existingTransferId = 1L;
+    transferRepository.delete(existingTransferId);
+
+    allTransfers = transferRepository.findAll();
+    expectedCount = Databases.getRowCount(TRANSFER.getName());
+
+    assertEquals(expectedCount, allTransfers.size());
+
   }
 
   @Test

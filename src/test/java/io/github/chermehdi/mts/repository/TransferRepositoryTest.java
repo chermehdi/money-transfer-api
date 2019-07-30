@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.github.chermehdi.mts.DatabaseTestExtension;
 import io.github.chermehdi.mts.domain.Money;
 import io.github.chermehdi.mts.domain.Transfer;
+import io.github.chermehdi.mts.domain.Transfer.TransferStatus;
 import io.github.chermehdi.mts.util.DatabaseConnectionProvider;
 import io.github.chermehdi.mts.util.validation.ValidationException;
 import java.io.IOException;
@@ -62,7 +63,7 @@ class TransferRepositoryTest {
   @Test
   public void testPersistShouldThrow() {
     var transferRepository = new TransferRepository(context);
-    var transfer = new Transfer(1L, "", "", new Money(valueOf(1L)));
+    var transfer = new Transfer(1L, "", "", new Money(valueOf(1L)), TransferStatus.SUCCESS);
 
     assertThrows(ValidationException.class, () -> transferRepository.persist(transfer));
   }
@@ -70,7 +71,7 @@ class TransferRepositoryTest {
   @Test
   public void testPersist() {
     var transferRepository = new TransferRepository(context);
-    var transfer = new Transfer(null, "", "", new Money(valueOf(1L)));
+    var transfer = new Transfer(null, "", "", new Money(valueOf(1L)), TransferStatus.SUCCESS);
     var persistedTransfer = transferRepository.persist(transfer);
 
     assertNotNull(persistedTransfer);

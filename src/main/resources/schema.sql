@@ -51,8 +51,8 @@ CREATE TABLE transfer
     to_account_identifier   VARCHAR(255)   NOT NULL,
     amount                  DECIMAL(19, 4) NOT NULL,
     currency                VARCHAR(10)    NOT NULL,
+    status                  VARCHAR(50)    NOT NULL,
     performedAt             timestamp      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
     CONSTRAINT pk_t_transfer PRIMARY KEY (id),
 )
 ;
@@ -84,5 +84,6 @@ VALUES ('john', 'doe', 3)
 INSERT INTO transaction (account_id, identifier, amount, currency)
 VALUES (1, 'f756c8f6-9cb4-43eb-a78a-b5dad11b62e7', 120, 'EUR')
 ;
-INSERT INTO transfer (from_account_identifier, to_account_identifier, amount, currency)
-VALUES ('d42f0d8a-2e87-4ca1-a55e-e283d4ae7f57', '1f442fda-b0c4-40a0-b2f8-89dca5e0b2d8', 20, 'EUR')
+INSERT INTO transfer (from_account_identifier, to_account_identifier, amount, currency, status)
+VALUES ('d42f0d8a-2e87-4ca1-a55e-e283d4ae7f57', '1f442fda-b0c4-40a0-b2f8-89dca5e0b2d8', 20, 'EUR',
+        'SUCCESS')

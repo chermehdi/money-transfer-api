@@ -4,8 +4,10 @@ import static io.github.chermehdi.mts.domain.tables.Transfer.TRANSFER;
 
 import io.github.chermehdi.mts.domain.Money;
 import io.github.chermehdi.mts.domain.Transfer;
+import io.github.chermehdi.mts.domain.Transfer.TransferStatus;
 import io.github.chermehdi.mts.util.validation.Validation;
 import java.util.Currency;
+import java.util.List;
 import java.util.Optional;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -29,6 +31,11 @@ public class TransferRepository {
         .fetchOne(new TransferMapper()));
   }
 
+  public List<Transfer> findAll() {
+    return context.selectFrom(TRANSFER)
+        .fetch(new TransferMapper());
+  }
+
   public Transfer persist(Transfer transfer) {
     Validation.validate(transfer)
         .assureThat(tr -> tr != null)
@@ -39,6 +46,7 @@ public class TransferRepository {
         .set(TRANSFER.FROM_ACCOUNT_IDENTIFIER, transfer.getFromAccountId())
         .set(TRANSFER.AMOUNT, transfer.getAmount().getAmount())
         .set(TRANSFER.CURRENCY, transfer.getAmount().getCurrency().getCurrencyCode())
+        .set(TRANSFER.STATUS, transfer.getStatus().name())
         .returning(TRANSFER.ID)
         .fetchOne();
 
@@ -59,6 +67,7 @@ public class TransferRepository {
         .set(TRANSFER.FROM_ACCOUNT_IDENTIFIER, transfer.getFromAccountId())
         .set(TRANSFER.AMOUNT, transfer.getAmount().getAmount())
         .set(TRANSFER.CURRENCY, transfer.getAmount().getCurrency().getCurrencyCode())
+        .set(TRANSFER.STATUS, transfer.getStatus().name())
         .execute();
 
   }
@@ -80,7 +89,8 @@ public class TransferRepository {
           record.getValue(TRANSFER.FROM_ACCOUNT_IDENTIFIER),
           record.getValue(TRANSFER.TO_ACCOUNT_IDENTIFIER),
           new Money(record.getValue(TRANSFER.AMOUNT),
-              Currency.getInstance(record.getValue(TRANSFER.CURRENCY)))
+              Currency.getInstance(record.getValue(TRANSFER.CURRENCY))),
+          TransferStatus.valueOf(record.getValue(TRANSFER.STATUS))
       );
     }
   }

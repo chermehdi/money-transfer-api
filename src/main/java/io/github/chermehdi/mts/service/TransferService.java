@@ -42,22 +42,20 @@ public class TransferService {
   }
 
   private Transfer makeTransfer(DSLContext context, TransferRequest request) {
+    validateTransferRequest(request);
+
     var fromAccount = retreiveAccountByIdentifier(context, request.getFromAccountId());
     var toAccount = retreiveAccountByIdentifier(context, request.getToAccountId());
+
     Validation.notNull(fromAccount);
     Validation.notNull(toAccount);
-    // TODO: guard against transfer to same account
-    // TODO: guard against transfer 0 amount
+
     var transferAmountInFromAccountCurrency = conversionService
         .convert(new Money(request.getAmount(), request.getCurrency()),
             fromAccount.getBalance().getCurrency());
 
-    if (!transferAmountInFromAccountCurrency.isPositive()) {
-      throw new TransferOperationException("Transferred amount should be positive");
-    }
-    if (transferAmountInFromAccountCurrency.isBiggerThan(fromAccount.getBalance())) {
-      throw new TransferOperationException("Transferred amount bigger than account balance");
-    }
+    guardAgainstNegativeAmountTransfer(transferAmountInFromAccountCurrency);
+    guardExceedingBalanceTransfer(fromAccount, transferAmountInFromAccountCurrency);
 
     updateAccountBalance(context, fromAccount,
         fromAccount.getBalance().subtract(transferAmountInFromAccountCurrency));
@@ -76,6 +74,33 @@ public class TransferService {
     return saveTransfer(context, transfer);
   }
 
+  private void validateTransferRequest(TransferRequest request) {
+    Validation.validate(request)
+        .assureThat(req -> req != null, "The transfer request should be none null")
+        .assureThat(req -> req.getFromAccountId() != null, "The fromAccountId should be none null")
+        .assureThat(req -> req.getToAccountId() != null, "The toAccountId should be none null")
+        .assureThat(req -> req.getFromAccountId().equals(req.getToAccountId()),
+            "A transfer cannot be made to the same account")
+        .assureThat(req -> !new Money(req.getAmount(), req.getCurrency()).isZero(),
+            "A transfer with an amount of 0.0 cannot be made");
+  }
+
+  private void guardExceedingBalanceTransfer(Account fromAccount,
+      Money transferAmountInFromAccountCurrency) {
+    if (transferAmountInFromAccountCurrency.isBiggerThan(fromAccount.getBalance())) {
+      throw new TransferOperationException("Transferred amount bigger than account balance");
+    }
+  }
+
+  private void guardAgainstNegativeAmountTransfer(Money transferAmountInFromAccountCurrency) {
+    if (!transferAmountInFromAccountCurrency.isPositive()) {
+      throw new TransferOperationException("Transferred amount should be positive");
+    }
+  }
+
+  // it needed to be done, because i needed the request to be done on the given context, and not on
+  // the one given to the {@code TransferRepository}
+  @SuppressWarnings("Duplicates")
   private Transfer saveTransfer(DSLContext context, Transfer transfer) {
     var transferRecord = context.insertInto(TRANSFER)
         .set(TRANSFER.TO_ACCOUNT_IDENTIFIER, transfer.getToAccountId())

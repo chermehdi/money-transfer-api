@@ -98,4 +98,13 @@ class MoneyTest {
     assertEquals(BigDecimal.valueOf(90L).setScale(Money.DEFAULT_COMPARISON_SCALE),
         result.getAmount().setScale(Money.DEFAULT_COMPARISON_SCALE));
   }
+
+  @Test
+  public void testIsZeroMoney() {
+    var zeroMoney = new Money(valueOf(0L));
+    var noneZeroMoney = new Money(valueOf(1L));
+
+    assertTrue(zeroMoney.isZero());
+    assertFalse(noneZeroMoney.isZero());
+  }
 }

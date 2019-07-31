@@ -60,6 +60,11 @@ public class Money {
     return amount.setScale(5).compareTo(BigDecimal.ZERO.setScale(5)) >= 0;
   }
 
+  public boolean isZero() {
+    return amount.setScale(DEFAULT_COMPARISON_SCALE)
+        .equals(BigDecimal.ZERO.setScale(DEFAULT_COMPARISON_SCALE));
+  }
+
   public boolean isBiggerThan(final Money other) {
     guardAgainstDifferentCurrencies(other);
     return amount.setScale(DEFAULT_COMPARISON_SCALE)

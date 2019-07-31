@@ -10,11 +10,12 @@ import java.util.Currency;
  */
 public class Money {
 
+  public static int DEFAULT_COMPARISON_SCALE = 5;
+
   private final Currency currency;
-
   private final BigDecimal amount;
-
   public static final Currency DEFAULT_CURRENCY;
+
 
   static {
     // from default configuration file (config.properties)
@@ -45,13 +46,24 @@ public class Money {
 
   private void guardAgainstDifferentCurrencies(Money other) {
     Validation.validate(other)
+        .assureThat(money -> money != null, "amount should be none null")
         .assureThat(money -> money.currency == currency,
             "cannot perform operation on money with different currencies");
   }
 
   public Money subtract(Money other) {
     guardAgainstDifferentCurrencies(other);
-    return new Money(other.amount.subtract(amount), currency);
+    return new Money(amount.subtract(other.amount), currency);
+  }
+
+  public boolean isPositive() {
+    return amount.setScale(5).compareTo(BigDecimal.ZERO.setScale(5)) >= 0;
+  }
+
+  public boolean isBiggerThan(final Money other) {
+    guardAgainstDifferentCurrencies(other);
+    return amount.setScale(DEFAULT_COMPARISON_SCALE)
+        .compareTo(other.getAmount().setScale(DEFAULT_COMPARISON_SCALE)) > 0;
   }
 
   public Currency getCurrency() {

@@ -1,9 +1,12 @@
 package io.github.chermehdi.mts.domain;
 
 import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.valueOf;
 import static java.util.Currency.getInstance;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.chermehdi.mts.util.ConfigurationProvider;
 import io.github.chermehdi.mts.util.validation.ValidationException;
@@ -18,6 +21,16 @@ class MoneyTest {
   @Test
   public void testCanCreateMoneyObject() {
     var money = new Money(ONE);
+  }
+
+  @Test
+  public void testCanCreateMoneyObjectWithUnknownCurrencyThrows() {
+
+    String unknownCurrencyCode = "ABCDEDEF";
+    assertThrows(IllegalArgumentException.class, () -> {
+          new Money(ONE, unknownCurrencyCode);
+        }
+    );
   }
 
   @Test
@@ -41,12 +54,48 @@ class MoneyTest {
   @Test
   public void testCanAddMoneyWithSameCurrency() {
     var money1 = new Money(ONE, getInstance("MAD"));
-    var money2 = new Money(BigDecimal.valueOf(2), getInstance("MAD"));
+    var money2 = new Money(valueOf(2), getInstance("MAD"));
     Money result = money1.add(money2);
     // money objects do not change after operation
-    assertEquals(BigDecimal.valueOf(1), money1.getAmount());
-    assertEquals(BigDecimal.valueOf(2), money2.getAmount());
+    assertEquals(valueOf(1), money1.getAmount());
+    assertEquals(valueOf(2), money2.getAmount());
 
-    assertEquals(BigDecimal.valueOf(2).add(ONE), result.getAmount());
+    assertEquals(valueOf(2).add(ONE), result.getAmount());
+  }
+
+  @Test
+  public void testIsPositive() {
+    var positiveMoney = new Money(valueOf(10));
+    assertTrue(positiveMoney.isPositive());
+    var zeroMoney = new Money(BigDecimal.ZERO);
+    assertTrue(zeroMoney.isPositive());
+    var negativeMoney = new Money(valueOf(-100));
+
+    assertFalse(negativeMoney.isPositive());
+  }
+
+  @Test
+  public void testIsBiggerThanThrowsWhenDifferentCurrencies() {
+    assertThrows(ValidationException.class, () -> {
+      var money1 = new Money(valueOf(100L), "EUR");
+      var money2 = new Money(valueOf(10L), "MAD");
+      money1.isBiggerThan(money2);
+    });
+  }
+
+  @Test
+  public void testIsBiggerThan() {
+    var money1 = new Money(valueOf(100L), "EUR");
+    var money2 = new Money(valueOf(10L), "EUR");
+    assertTrue(money1.isBiggerThan(money2));
+  }
+
+  @Test
+  public void testSubtract() {
+    var money1 = new Money(valueOf(100L), "EUR");
+    var money2 = new Money(valueOf(10L), "EUR");
+    var result = money1.subtract(money2);
+    assertEquals(BigDecimal.valueOf(90L).setScale(Money.DEFAULT_COMPARISON_SCALE),
+        result.getAmount().setScale(Money.DEFAULT_COMPARISON_SCALE));
   }
 }

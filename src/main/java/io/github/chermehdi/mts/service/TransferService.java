@@ -114,7 +114,6 @@ public class TransferService {
     Validation.notNull(transferRecord);
     transfer.setId(transferRecord.getId());
 
-    transfer.setId(transferRecord.getId());
     return transfer;
   }
 

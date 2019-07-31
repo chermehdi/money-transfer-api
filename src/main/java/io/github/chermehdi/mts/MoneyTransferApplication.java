@@ -5,25 +5,14 @@ import static spark.Spark.post;
 
 import com.google.inject.Guice;
 import io.github.chermehdi.mts.config.ApplicationModule;
-import io.github.chermehdi.mts.domain.Account;
-import io.github.chermehdi.mts.domain.Transfer;
-import io.github.chermehdi.mts.domain.User;
+import io.github.chermehdi.mts.controller.MoneyController;
 import io.github.chermehdi.mts.dto.ErrorMessageResponse;
-import io.github.chermehdi.mts.dto.TransferRequest;
-import io.github.chermehdi.mts.dto.UserCreationRequest;
-import io.github.chermehdi.mts.service.AccountService;
-import io.github.chermehdi.mts.service.TransferService;
-import io.github.chermehdi.mts.service.UserService;
 import io.github.chermehdi.mts.util.ConfigurationProvider.Configuration;
 import io.github.chermehdi.mts.util.conversion.JsonConverter;
 import io.github.chermehdi.mts.util.metrics.MetricHandler;
 import io.github.chermehdi.mts.util.validation.ValidationException;
-import java.util.List;
 import javax.inject.Inject;
-import org.jetbrains.annotations.NotNull;
 import spark.Filter;
-import spark.Request;
-import spark.Response;
 import spark.ResponseTransformer;
 import spark.Spark;
 
@@ -36,24 +25,19 @@ public class MoneyTransferApplication {
   private final ResponseTransformer responseTransformer;
   private final MetricHandler metricHandler;
   private final JsonConverter jsonConverter;
-  private final UserService userService;
-  private final AccountService accountService;
-  private final TransferService transferService;
+  private final MoneyController moneyController;
 
   @Inject
   public MoneyTransferApplication(
       Configuration configuration, ResponseTransformer responseTransformer,
       MetricHandler metricHandler,
-      JsonConverter jsonConverter, UserService userService,
-      AccountService accountService,
-      TransferService transferService) {
+      JsonConverter jsonConverter,
+      MoneyController moneyController) {
     this.configuration = configuration;
     this.responseTransformer = responseTransformer;
     this.metricHandler = metricHandler;
+    this.moneyController = moneyController;
     this.jsonConverter = jsonConverter;
-    this.userService = userService;
-    this.accountService = accountService;
-    this.transferService = transferService;
   }
 
   public void start() {
@@ -79,45 +63,12 @@ public class MoneyTransferApplication {
   }
 
   public void registerRoutes() {
-    post("/users", this::createUser, responseTransformer);
-    get("/users", this::getAllUsers, responseTransformer);
-    get("/accounts", this::getAllAccounts, responseTransformer);
-    get("/accounts/:account_id", this::getAccountByIdentifier, responseTransformer);
-    get("/transfers", this::getAllTransfers, responseTransformer);
-    post("/transfers", this::performTransfer, responseTransformer);
-  }
-
-  @NotNull
-  private Transfer performTransfer(Request req, Response res) {
-    var transferRequest = jsonConverter.parse(req.body(), TransferRequest.class);
-    return transferService.performTransfer(transferRequest);
-  }
-
-  @NotNull
-  private List<Transfer> getAllTransfers(Request req, Response res) {
-    return transferService.getAllTransfers();
-  }
-
-  @NotNull
-  private Account getAccountByIdentifier(Request req, Response res) {
-    return accountService.getAccount(req.params(":account_id"));
-  }
-
-  @NotNull
-  private List<Account> getAllAccounts(Request req, Response res) {
-    return accountService.getAllAccounts();
-  }
-
-  @NotNull
-  private List<User> getAllUsers(Request req, Response res) {
-    return userService.getAllUsers();
-  }
-
-  @NotNull
-  private User createUser(Request req, Response res) {
-    UserCreationRequest userCreationRequest = jsonConverter
-        .parse(req.body(), UserCreationRequest.class);
-    return userService.createUser(userCreationRequest);
+    post("/users", moneyController::createUser, responseTransformer);
+    get("/users", moneyController::getAllUsers, responseTransformer);
+    get("/accounts", moneyController::getAllAccounts, responseTransformer);
+    get("/accounts/:account_id", moneyController::getAccountByIdentifier, responseTransformer);
+    get("/transfers", moneyController::getAllTransfers, responseTransformer);
+    post("/transfers", moneyController::performTransfer, responseTransformer);
   }
 
   public static void main(String[] args) {

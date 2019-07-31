@@ -6,6 +6,7 @@ import io.github.chermehdi.mts.domain.User;
 import io.github.chermehdi.mts.util.validation.Validation;
 import java.util.List;
 import java.util.Optional;
+import javax.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.RecordMapper;
@@ -18,6 +19,7 @@ public class UserRepository {
   private final DSLContext context;
   private final AccountRepository accountRepository;
 
+  @Inject
   public UserRepository(DSLContext context,
       AccountRepository accountRepository) {
     this.context = Validation.notNull(context);

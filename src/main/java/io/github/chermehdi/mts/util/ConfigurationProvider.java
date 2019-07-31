@@ -93,5 +93,12 @@ public class ConfigurationProvider {
     public int length() {
       return properties.size();
     }
+
+    @Override
+    public String toString() {
+      return "Configuration{" +
+          "properties=" + properties +
+          '}';
+    }
   }
 }

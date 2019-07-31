@@ -11,6 +11,7 @@ import io.github.chermehdi.mts.repository.TransactionRepository.TransactionMappe
 import io.github.chermehdi.mts.util.validation.Validation;
 import java.util.List;
 import java.util.Optional;
+import javax.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.RecordMapper;
@@ -22,6 +23,7 @@ public class AccountRepository {
 
   private final DSLContext context;
 
+  @Inject
   public AccountRepository(DSLContext context) {
     this.context = Validation.notNull(context);
   }

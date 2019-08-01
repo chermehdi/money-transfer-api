@@ -58,7 +58,7 @@ CREATE TABLE transfer
 ;
 
 INSERT INTO account (identifier, currency, amount)
-VALUES ('d42f0d8a-2e87-4ca1-a55e-e283d4ae7f57', 'EUR', 100)
+VALUES ('d42f0d8a-2e87-4ca1-a55e-e283d4ae7f57', 'EUR', 80)
 ;
 
 INSERT INTO account (identifier, currency, amount)
@@ -66,7 +66,7 @@ VALUES ('d42f56ea-2e87-4sa1-a55e-e2drd4ae7ed7', 'EUR', 200)
 ;
 
 INSERT INTO account (identifier, currency, amount)
-VALUES ('1f442fda-b0c4-40a0-b2f8-89dca5e0b2d8', 'MAD', 300)
+VALUES ('1f442fda-b0c4-40a0-b2f8-89dca5e0b2d8', 'MAD', 320)
 ;
 
 INSERT INTO user (first_name, last_name, account_id)
@@ -82,8 +82,17 @@ VALUES ('john', 'doe', 3)
 ;
 
 INSERT INTO transaction (account_id, identifier, amount, currency)
-VALUES (1, 'f756c8f6-9cb4-43eb-a78a-b5dad11b62e7', 120, 'EUR')
+VALUES (1, 'd42f0d8a-2e87-4ca1-a55e-e283d4ae7f57', 100, 'EUR')
 ;
+
+INSERT INTO transaction (account_id, identifier, amount, currency)
+VALUES (1, 'd42f56ea-2e87-4sa1-a55e-e2drd4ae7ed7', 200, 'EUR')
+;
+
+INSERT INTO transaction (account_id, identifier, amount, currency)
+VALUES (1, '1f442fda-b0c4-40a0-b2f8-89dca5e0b2d8', 300, 'MAD')
+;
+
 INSERT INTO transfer (from_account_identifier, to_account_identifier, amount, currency, status)
 VALUES ('d42f0d8a-2e87-4ca1-a55e-e283d4ae7f57', '1f442fda-b0c4-40a0-b2f8-89dca5e0b2d8', 20, 'EUR',
         'SUCCESS')

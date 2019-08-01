@@ -1,5 +1,6 @@
 package io.github.chermehdi.mts.repository;
 
+import static io.github.chermehdi.mts.domain.Money.DEFAULT_COMPARISON_SCALE;
 import static io.github.chermehdi.mts.domain.tables.Transaction.TRANSACTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -16,7 +17,6 @@ import io.github.chermehdi.mts.util.DatabaseConnectionProvider;
 import io.github.chermehdi.mts.util.validation.ValidationException;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.Instant;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,11 +83,12 @@ class TransactionRepositoryTest {
     var account = new Account(null, new Money(BigDecimal.valueOf(1)));
     accountRepository.persist(account);
 
-    var transaction = new Transaction(null, BigDecimal.valueOf(100), Instant.now());
+    var transaction = new Transaction(null, new Money(BigDecimal.valueOf(100)));
     transaction = transactionRepository.persist(transaction, account);
 
     assertNotNull(transaction.getId());
-    assertEquals(BigDecimal.valueOf(100), transaction.getAmount());
+    assertEquals(BigDecimal.valueOf(100).setScale(DEFAULT_COMPARISON_SCALE),
+        transaction.getAmount().getAmount().setScale(DEFAULT_COMPARISON_SCALE));
     assertTrue(transactionRepository.findById(transaction.getId()).isPresent());
   }
 
@@ -98,11 +99,13 @@ class TransactionRepositoryTest {
     var transaction = transactionRepository.findById(existingTransactionId).get();
     var newAmount = BigDecimal.valueOf(200L);
 
-    transaction.setAmount(newAmount);
+    transaction.setAmount(new Money(newAmount));
     transactionRepository.update(transaction);
 
-    assertEquals(newAmount.setScale(1),
-        transactionRepository.findById(existingTransactionId).get().getAmount().setScale(1));
+    assertEquals(newAmount.setScale(DEFAULT_COMPARISON_SCALE),
+        transactionRepository.findById(existingTransactionId).get().getAmount().getAmount()
+            .setScale(
+                DEFAULT_COMPARISON_SCALE));
   }
 
   @Test

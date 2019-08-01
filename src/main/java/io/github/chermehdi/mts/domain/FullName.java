@@ -7,8 +7,13 @@ import io.github.chermehdi.mts.util.validation.Validation;
  */
 public class FullName {
 
-  private final String firstName;
-  private final String lastName;
+  private String firstName;
+  private String lastName;
+
+  // for json serialisation
+  public FullName() {
+    firstName = lastName = "";
+  }
 
   public FullName(String firstName, String lastName) {
     this.firstName = Validation.notNull(firstName);

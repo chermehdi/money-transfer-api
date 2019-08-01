@@ -1,12 +1,14 @@
 package io.github.chermehdi.mts.service;
 
 import static io.github.chermehdi.mts.domain.tables.Account.ACCOUNT;
+import static io.github.chermehdi.mts.domain.tables.Transaction.TRANSACTION;
 import static io.github.chermehdi.mts.domain.tables.Transfer.TRANSFER;
 
 import io.github.chermehdi.mts.domain.Account;
 import io.github.chermehdi.mts.domain.Money;
+import io.github.chermehdi.mts.domain.Transaction;
 import io.github.chermehdi.mts.domain.Transfer;
-import io.github.chermehdi.mts.domain.Transfer.TransferStatus;
+import io.github.chermehdi.mts.domain.Transfer.OperationStatus;
 import io.github.chermehdi.mts.domain.exception.TransferOperationException;
 import io.github.chermehdi.mts.dto.TransferRequest;
 import io.github.chermehdi.mts.repository.AccountRepository.AccountMapper;
@@ -38,7 +40,7 @@ public class TransferService {
   public Transfer performTransfer(TransferRequest transferRequest) {
     validateRequest(transferRequest);
     return transferRepository
-        .retreiveTransitionally(context -> makeTransfer(context, transferRequest));
+        .retreiveTransactional(context -> makeTransfer(context, transferRequest));
   }
 
   private Transfer makeTransfer(DSLContext context, TransferRequest request) {
@@ -68,10 +70,26 @@ public class TransferService {
         toAccount.getBalance().add(transferAmountInToAccountCurrency));
 
     var transfer = new Transfer(null, fromAccount.getIdentifier(), toAccount.getIdentifier(),
-        new Money(request.getAmount(), request.getCurrency()), TransferStatus.SUCCESS);
+        new Money(request.getAmount(), request.getCurrency()), OperationStatus.SUCCESS);
 
+    var fromTransaction = new Transaction(null, transferAmountInFromAccountCurrency.negate());
+    var toTransaction = new Transaction(null, transferAmountInFromAccountCurrency);
+
+    saveTransaction(context, fromTransaction, fromAccount);
+    saveTransaction(context, toTransaction, toAccount);
     // cannot use the {@code TransferRepository}, need to use the context given as parameter
     return saveTransfer(context, transfer);
+  }
+
+  private void saveTransaction(DSLContext context, Transaction transaction,
+      Account account) {
+
+    context.insertInto(TRANSACTION)
+        .set(TRANSACTION.AMOUNT, transaction.getAmount().getAmount())
+        .set(TRANSACTION.CURRENCY, transaction.getAmount().getCurrency().getCurrencyCode())
+        .set(TRANSACTION.ACCOUNT_ID, account.getId())
+        .set(TRANSACTION.IDENTIFIER, transaction.getIdentifier())
+        .execute();
   }
 
   private void validateTransferRequest(TransferRequest request) {
@@ -79,7 +97,7 @@ public class TransferService {
         .assureThat(req -> req != null, "The transfer request should be none null")
         .assureThat(req -> req.getFromAccountId() != null, "The fromAccountId should be none null")
         .assureThat(req -> req.getToAccountId() != null, "The toAccountId should be none null")
-        .assureThat(req -> req.getFromAccountId().equals(req.getToAccountId()),
+        .assureThat(req -> !req.getFromAccountId().equals(req.getToAccountId()),
             "A transfer cannot be made to the same account")
         .assureThat(req -> !new Money(req.getAmount(), req.getCurrency()).isZero(),
             "A transfer with an amount of 0.0 cannot be made");
@@ -88,7 +106,7 @@ public class TransferService {
   private void guardExceedingBalanceTransfer(Account fromAccount,
       Money transferAmountInFromAccountCurrency) {
     if (transferAmountInFromAccountCurrency.isBiggerThan(fromAccount.getBalance())) {
-      throw new TransferOperationException("Transferred amount bigger than account balance");
+      throw new TransferOperationException("Transferred amount is bigger than the account balance");
     }
   }
 
@@ -113,7 +131,6 @@ public class TransferService {
 
     Validation.notNull(transferRecord);
     transfer.setId(transferRecord.getId());
-
     return transfer;
   }
 

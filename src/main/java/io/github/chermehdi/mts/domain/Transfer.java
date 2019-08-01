@@ -1,5 +1,6 @@
 package io.github.chermehdi.mts.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.chermehdi.mts.util.validation.Validation;
 import java.time.Instant;
 
@@ -8,18 +9,19 @@ import java.time.Instant;
  */
 public class Transfer {
 
+  @JsonIgnore
   private Long id;
   private String fromAccountId;
   private String toAccountId;
   private Money amount;
   private Instant performedAt;
-  private TransferStatus status;
+  private OperationStatus status;
 
   public Transfer() {
   }
 
   public Transfer(Long id, String fromAccountId, String toAccountId, Money amount,
-      TransferStatus status) {
+      OperationStatus status) {
     this.id = id;
     this.fromAccountId = Validation.notNull(fromAccountId);
     this.toAccountId = Validation.notNull(toAccountId);
@@ -68,21 +70,21 @@ public class Transfer {
     this.performedAt = performedAt;
   }
 
-  public TransferStatus getStatus() {
+  public OperationStatus getStatus() {
     return status;
   }
 
-  public void setStatus(TransferStatus status) {
+  public void setStatus(OperationStatus status) {
     this.status = status;
   }
 
-  public enum TransferStatus {
+  public enum OperationStatus {
     SUCCESS("Success"),
     FAILED("Failed");
 
     private String displayName;
 
-    TransferStatus(String displayName) {
+    OperationStatus(String displayName) {
       this.displayName = displayName;
     }
   }

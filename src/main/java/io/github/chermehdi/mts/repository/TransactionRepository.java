@@ -3,6 +3,7 @@ package io.github.chermehdi.mts.repository;
 import static io.github.chermehdi.mts.domain.tables.Transaction.TRANSACTION;
 
 import io.github.chermehdi.mts.domain.Account;
+import io.github.chermehdi.mts.domain.Money;
 import io.github.chermehdi.mts.domain.Transaction;
 import io.github.chermehdi.mts.domain.tables.records.TransactionRecord;
 import io.github.chermehdi.mts.util.validation.Validation;
@@ -45,7 +46,7 @@ public class TransactionRepository {
 
     TransactionRecord transactionRecord = context.insertInto(TRANSACTION)
         .set(TRANSACTION.ACCOUNT_ID, account.getId())
-        .set(TRANSACTION.AMOUNT, entity.getAmount())
+        .set(TRANSACTION.AMOUNT, entity.getAmount().getAmount())
         .set(TRANSACTION.IDENTIFIER, entity.getIdentifier())
         .set(TRANSACTION.CURRENCY, account.getBalance().getCurrency().getCurrencyCode())
         .set(TRANSACTION.PERFORMEDAT, Timestamp.from(entity.getPerformedAt()))
@@ -63,7 +64,7 @@ public class TransactionRepository {
         .assureThat(tr -> tr.getId() != null, "Transaction should be persisted to database");
 
     context.update(TRANSACTION)
-        .set(TRANSACTION.AMOUNT, entity.getAmount())
+        .set(TRANSACTION.AMOUNT, entity.getAmount().getAmount())
         .set(TRANSACTION.IDENTIFIER, entity.getIdentifier())
         .set(TRANSACTION.PERFORMEDAT, Timestamp.from(entity.getPerformedAt()))
         .execute();
@@ -85,7 +86,7 @@ public class TransactionRepository {
       BigDecimal amount = record.getValue(TRANSACTION.AMOUNT);
       String identifier = record.getValue(TRANSACTION.IDENTIFIER);
       Instant performedAt = record.getValue(TRANSACTION.PERFORMEDAT).toInstant();
-      var transaction = new Transaction(id, amount, identifier);
+      var transaction = new Transaction(id, new Money(amount), identifier);
       transaction.setPerformedAt(performedAt);
       return transaction;
     }

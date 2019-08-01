@@ -19,7 +19,7 @@ import org.jooq.RecordMapper;
 /**
  * @author chermehdi
  */
-public class AccountRepository {
+public class AccountRepository extends TransactionalProcess {
 
   private final DSLContext context;
 
@@ -99,6 +99,11 @@ public class AccountRepository {
           .execute();
     });
 
+  }
+
+  @Override
+  protected DSLContext context() {
+    return context;
   }
 
   public static class AccountMapper implements RecordMapper<Record, Account> {

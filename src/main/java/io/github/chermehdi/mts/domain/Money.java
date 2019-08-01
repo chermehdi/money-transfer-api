@@ -71,6 +71,10 @@ public class Money {
         .compareTo(other.getAmount().setScale(DEFAULT_COMPARISON_SCALE)) > 0;
   }
 
+  public Money negate() {
+    return new Money(amount.negate(), currency);
+  }
+
   public Currency getCurrency() {
     return currency;
   }

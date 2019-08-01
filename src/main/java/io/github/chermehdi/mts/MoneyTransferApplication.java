@@ -6,7 +6,10 @@ import static spark.Spark.post;
 import com.google.inject.Guice;
 import io.github.chermehdi.mts.config.ApplicationModule;
 import io.github.chermehdi.mts.controller.MoneyController;
+import io.github.chermehdi.mts.domain.exception.OperationException;
+import io.github.chermehdi.mts.domain.exception.ResourceNotFoundException;
 import io.github.chermehdi.mts.dto.ErrorMessageResponse;
+import io.github.chermehdi.mts.dto.OperationErrorMessage;
 import io.github.chermehdi.mts.util.ConfigurationProvider.Configuration;
 import io.github.chermehdi.mts.util.conversion.JsonConverter;
 import io.github.chermehdi.mts.util.metrics.MetricHandler;
@@ -55,10 +58,26 @@ public class MoneyTransferApplication {
     Spark.after((Filter) (request, response)
         -> response.header("Content-type", "application/json"));
 
+    registerExceptionHandlers();
+  }
+
+  private void registerExceptionHandlers() {
     Spark.exception(ValidationException.class, (exception, request, response) -> {
       response.status(400); // bad request
       response.header("Content-type", "application/json");
       response.body(jsonConverter.convert(new ErrorMessageResponse(exception.getMessage())));
+    });
+
+    Spark.exception(OperationException.class, (exception, request, response) -> {
+      response.status(400); // bad request
+      response.header("Content-type", "application/json");
+      response.body(jsonConverter.convert(new OperationErrorMessage(exception.getMessage())));
+    });
+
+    Spark.exception(ResourceNotFoundException.class, (exception, request, response) -> {
+      response.status(404); // bad request
+      response.header("Content-type", "application/json");
+      response.body(jsonConverter.convert(new OperationErrorMessage(exception.getMessage())));
     });
   }
 
@@ -67,6 +86,8 @@ public class MoneyTransferApplication {
     get("/users", moneyController::getAllUsers, responseTransformer);
     get("/accounts", moneyController::getAllAccounts, responseTransformer);
     get("/accounts/:account_id", moneyController::getAccountByIdentifier, responseTransformer);
+    post("/accounts/:account_id/transactions", moneyController::performTransaction,
+        responseTransformer);
     get("/transfers", moneyController::getAllTransfers, responseTransformer);
     post("/transfers", moneyController::performTransfer, responseTransformer);
   }
@@ -75,5 +96,9 @@ public class MoneyTransferApplication {
     var injector = Guice.createInjector(new ApplicationModule());
     var application = injector.getInstance(MoneyTransferApplication.class);
     application.start();
+  }
+
+  public void stop() {
+    Spark.stop();
   }
 }

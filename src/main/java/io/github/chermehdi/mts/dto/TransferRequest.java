@@ -9,10 +9,18 @@ public class TransferRequest {
 
   private String fromAccountId;
   private String toAccountId;
-  private String currency;
   private BigDecimal amount;
+  private String currency;
 
   public TransferRequest() {
+  }
+
+  public TransferRequest(String fromAccountId, String toAccountId, BigDecimal amount,
+      String currency) {
+    this.fromAccountId = fromAccountId;
+    this.toAccountId = toAccountId;
+    this.currency = currency;
+    this.amount = amount;
   }
 
   public String getFromAccountId() {

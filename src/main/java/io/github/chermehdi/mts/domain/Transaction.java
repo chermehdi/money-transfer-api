@@ -1,7 +1,6 @@
 package io.github.chermehdi.mts.domain;
 
 import io.github.chermehdi.mts.util.validation.Validation;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -12,21 +11,24 @@ public class Transaction {
 
   private Long id;
   private String identifier;
-  private BigDecimal amount;
+  private Money amount;
   private Instant performedAt;
 
   public Transaction() {
   }
 
-  public Transaction(Long id, BigDecimal amount, String identifier) {
-    this.id = id;
-    this.identifier = Validation.notNull(identifier);
-    this.amount = Validation.notNull(amount);
-    this.performedAt = Instant.now();
+  public Transaction(Long id, Money amount) {
+    this(id, amount, UUID.randomUUID().toString(), Instant.now());
   }
 
-  public Transaction(Long id, BigDecimal amount, Instant performedAt) {
-    this(id, amount, UUID.randomUUID().toString());
+  public Transaction(Long id, Money amount, String identifier) {
+    this(id, amount, identifier, Instant.now());
+  }
+
+  public Transaction(Long id, Money amount, String identifier, Instant performedAt) {
+    this.id = id;
+    this.amount = Validation.notNull(amount);
+    this.identifier = Validation.notNull(identifier);
     this.performedAt = Validation.notNull(performedAt);
   }
 
@@ -46,11 +48,11 @@ public class Transaction {
     this.identifier = identifier;
   }
 
-  public BigDecimal getAmount() {
+  public Money getAmount() {
     return amount;
   }
 
-  public void setAmount(BigDecimal amount) {
+  public void setAmount(Money amount) {
     this.amount = amount;
   }
 

@@ -115,10 +115,12 @@ class AccountRepositoryTest {
     assertFalse(lazyAccount.isEmpty());
     assertEquals(1, lazyAccount.get().getId());
     assertTrue(lazyAccount.get().getTransactions().isEmpty());
+
     var eagerAccount = repository.findByIdEager(1);
+    var expectedNumberOfTransactions = 2;
     assertFalse(eagerAccount.isEmpty());
     assertEquals(1, eagerAccount.get().getId());
-    assertEquals(1, eagerAccount.get().getTransactions().size());
+    assertEquals(expectedNumberOfTransactions, eagerAccount.get().getTransactions().size());
   }
 
   @Test

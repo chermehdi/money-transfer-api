@@ -24,8 +24,9 @@ public class DatabaseTestExtension implements BeforeEachMethodAdapter {
   }
 
   private String getSchemaCreationSQL() throws IOException {
-    InputStream is = getClass().getClassLoader().getResourceAsStream("schema.sql");
-    return read(is);
+    try (InputStream is = getClass().getClassLoader().getResourceAsStream("schema.sql")) {
+      return read(is);
+    }
   }
 
   private String read(InputStream is) throws IOException {

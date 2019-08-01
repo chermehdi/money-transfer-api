@@ -3,19 +3,20 @@
 ## Description
 - The project will act as a small money transfer system with a minimalistic API.
 
-### Technologies used
+## Technologies used
 
 To build the project we used:
 
-- Java 11: as our runtime.
-- Spark Java: to serve the api requests.
-- Jooq: to give us a DSL to write type-safe SQL.
-- Google Guice: as our dependency injection framework.
-- Maven: as our build tool
+- **Java 11**: as our runtime.
+- **Spark Java**: to serve the api requests.
+- **Jooq**: to give us a DSL to write type-safe SQL.
+- **Google Guice**: as our dependency injection framework.
+- **Maven**: as our build tool
 
-### API Description
+## API Description
 
-#### Create a user
+### Create a user
+
 - **METHOD**: `POST`
 - **URL**: `/users`
 - **BODY**:
@@ -34,7 +35,7 @@ To build the project we used:
 ```
 - **RETURN DESCRIPTION**: the request will return the id of the newly created account associated with the created user.
 
-#### list all the users
+### List all the users
 
 - **METHOD**: `GET`
 - **URL**: `/users`
@@ -51,7 +52,7 @@ To build the project we used:
 ```
 - **RETURN DESCRIPTION**: the request will return the id of the newly created account associated with the created user.
 
-#### add money to an account
+### Add money to an account
 
 - **METHOD**: `POST`
 - **URL**: `/accounts/{account_id}/transactions`
@@ -72,7 +73,7 @@ To build the project we used:
 ```
 - **RETURN DESCRIPTION**: the request will return a view of the updated account balance, with the status of transaction
 
-#### transfer money between two accounts
+### Transfer money between two accounts
 
 - **METHOD**: `POST`
 - **URL**: `/transfers`
@@ -95,7 +96,7 @@ To build the project we used:
 ```
 - **RETURN DESCRIPTION**: returns the status of the performed transfer, or the errors if such operation cannot be performed.
 
-#### get all transfers
+### Get all transfers
 
 - **METHOD**: `GET`
 - **URL**: `/transfers`
@@ -115,7 +116,7 @@ To build the project we used:
 - **RETURN DESCRIPTION**: returns the list of all the performed transfers
 
 
-#### get all accounts
+### Get all accounts
 
 - **METHOD**: `GET`
 - **URL**: `/accounts`

@@ -71,8 +71,8 @@ public class TransferApiTest {
   public void testGetAllUsers() throws IOException, InterruptedException {
     var responseBody = client().send(getRequest("users"), BodyHandlers.ofString())
         .body();
-    System.out.println(responseBody);
-    UserResponse[] users = converter.parse(responseBody, UserResponse[].class);
+
+    var users = converter.parse(responseBody, UserResponse[].class);
 
     assertNotNull(users);
 

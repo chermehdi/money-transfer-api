@@ -239,6 +239,22 @@ public class TransferApiTest {
   }
 
   @Test
+  @DisplayName("Test POST request to /transfers negative transfer ")
+  public void testMakeNegativeAmountTransferThrows() throws IOException, InterruptedException {
+    var fromAccount = accountRepository.findByIdEager(1).get();
+    var toAccount = accountRepository.findByIdEager(2).get();
+    var amount = BigDecimal.valueOf(-100);
+    var transferCurrency = "EUR";
+    var transferRequest = new TransferRequest(fromAccount.getIdentifier(),
+        toAccount.getIdentifier(), amount, transferCurrency);
+
+    var response = client()
+        .send(postRequest(url("transfers"), transferRequest), BodyHandlers.ofString());
+
+    assertEquals(400, response.statusCode());
+  }
+
+  @Test
   @DisplayName("Test GET request to /transfers to list all transfers")
   public void testViewAllTransfers() throws IOException, InterruptedException {
     var response = client()

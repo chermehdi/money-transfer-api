@@ -136,7 +136,7 @@ To build the project we used:
 ### Get Account by identifier
 
 - **METHOD**: `GET`
-- **URL**: `/accounts/:account_id`
+- **URL**: `/accounts/{account_id}`
 - **RETURN STATUS**: `200 OK`
 
 ```json
